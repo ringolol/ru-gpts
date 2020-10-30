@@ -57,7 +57,7 @@ def adjust_length_to_model(length, max_sequence_length):
     return length
 
 
-def main(init_context=""):
+def main(init_context="", prompt_pattern="{0}", flg_debug=False):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--model_type",
@@ -128,7 +128,7 @@ def main(init_context=""):
             print('history cleaned!')
             prompt_text = init_context
             continue
-        prompt_text += f'Он: {input_message}\nОна:'
+        prompt_text += prompt_pattern.format(input_message)
         encoded_prompt = tokenizer.encode(prompt_text, add_special_tokens=False, return_tensors="pt")
         encoded_prompt = encoded_prompt.to(args.device)
         output_sequences = model.generate(
@@ -155,6 +155,10 @@ def main(init_context=""):
         # Remove all text after the stop token
         text = text[: text.find(args.stop_token) if args.stop_token else None]
 
+        if flg_debug:
+            print('========================')
+            print(text[len(prompt_text):])
+            print('========================')
         answer = text[len(prompt_text):].split('\n')[0].strip()
         print(f'Bot >>> {answer}')
 
@@ -165,5 +169,5 @@ def main(init_context=""):
 
 if __name__ == "__main__":
     init_context = '''Он: Tom asked Mary to throw the rotten apple into the garbage.\nОна: Том попросил Мэри выкинуть гнилое яблоко в ведро.\nОн: In order to have that machine running, you need lots and lots of people.\nОна: Чтобы такая машина работала необходимо очень много людей.\nОн: In 2003, Hodges and Colbert began to collaborate and formed Trading Yesterday, recording music from an apartment setup.\nОна: В 2003 Ходжес и Колберт спелись и основали Торговое Вчера, записывая музыку у себя дома.\n'''
-    dialog = main(init_context=init_context)
+    dialog = main(init_context=init_context, prompt_pattern='Он: {0}\nОна: ')
     print(dialog)

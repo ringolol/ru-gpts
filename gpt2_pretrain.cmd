@@ -1,13 +1,14 @@
 python pretrain_transformers.py ^
-    --output_dir=D:/Proj_One/GitSeparate/ru-gpts/rugpt2large ^
+    --output_dir=D:/Proj_One/GitSeparate/ru-gpts/essays_model ^
     --model_type=gpt2 ^
-    --model_name_or_path=./gpt2_large_bbpe_v50 ^
+    --model_name_or_path=sberbank-ai/rugpt3small_based_on_gpt2 ^
     --do_train ^
-    --train_data_file=all_essays.txt ^
+    --train_data_file=train.txt ^
     --do_eval ^
-    --eval_data_file=valid_essays.txt ^
-    --fp16 ^
+    --eval_data_file=valid.txt ^
     --per_gpu_train_batch_size 1 ^
-    --per_gpu_eval_batch_size 1 ^
     --gradient_accumulation_steps 1 ^
-    --line_by_line
+    --num_train_epochs 5 ^
+    --block_size 2048 ^
+    --overwrite_output_dir ^
+    --no_cuda
