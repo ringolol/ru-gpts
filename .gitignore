@@ -3,3 +3,5 @@
 __pycache__
 gpt2_large_bbpe_v50
 runs
+*_model*
+words*.txt
