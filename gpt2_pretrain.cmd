@@ -1,7 +1,7 @@
 python pretrain_transformers.py ^
-    --output_dir=D:/Proj_One/GitSeparate/ru-gpts/words_model2 ^
     --model_type=gpt2 ^
-    --model_name_or_path=D:/Proj_One/GitSeparate/ru-gpts/words_model ^
+    --model_name_or_path=sberbank-ai/rugpt3small_based_on_gpt2 ^
+    --output_dir=D:/Proj_One/GitSeparate/ru-gpts/words_model2 ^
     --do_train ^
     --train_data_file=words_train.txt ^
     --do_eval ^
