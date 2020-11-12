@@ -18,6 +18,9 @@
 """
 import os
 import sys
+import asyncio
+
+import websockets
 
 import argparse
 import logging
@@ -111,7 +114,6 @@ def main(init_context=""):
         raise KeyError("the model {} you specified is not supported. You are welcome to add it and open a PR :)")
 
     tokenizer = tokenizer_class.from_pretrained(args.model_name_or_path)
-    # tokenizer.eos_token = '\n'
     model = model_class.from_pretrained(args.model_name_or_path)
     model.to(args.device)
 
@@ -119,6 +121,7 @@ def main(init_context=""):
     logger.info(args)
     prompt_text = init_context
     # print(tokenizer.eos_token, tokenizer.encode('<|endoftext|>'))
+    
     while True:
         input_message = input("You >>> ")
         if input_message == 'stop':
