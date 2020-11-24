@@ -322,8 +322,8 @@ def train(args, train_dataset, model: PreTrainedModel, tokenizer: PreTrainedToke
 
             # if args.n_gpu > 1:
             #     loss = loss.mean()  # mean() to average on multi-gpu parallel training
-            # if args.gradient_accumulation_steps > 1:
-            #     loss = loss / args.gradient_accumulation_steps
+            if args.gradient_accumulation_steps > 1:
+                loss = loss / args.gradient_accumulation_steps
 
             if args.fp16:
                 with amp.scale_loss(loss, optimizer) as scaled_loss:
