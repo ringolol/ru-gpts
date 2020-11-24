@@ -234,19 +234,19 @@ def train(args, train_dataset, model: PreTrainedModel, tokenizer: PreTrainedToke
     ]
     # optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
     optimizer = torch.optim.SGD(optimizer_grouped_parameters, lr=args.learning_rate)
-    scheduler = get_linear_schedule_with_warmup(
-        optimizer, num_warmup_steps=args.warmup_steps, num_training_steps=t_total
-    )
+    # scheduler = get_linear_schedule_with_warmup(
+    #     optimizer, num_warmup_steps=args.warmup_steps, num_training_steps=t_total
+    # )
 
-    # Check if saved optimizer or scheduler states exist
-    if (
-            args.model_name_or_path
-            and os.path.isfile(os.path.join(args.model_name_or_path, "optimizer.pt"))
-            and os.path.isfile(os.path.join(args.model_name_or_path, "scheduler.pt"))
-    ):
-        # Load in optimizer and scheduler states
-        optimizer.load_state_dict(torch.load(os.path.join(args.model_name_or_path, "optimizer.pt")))
-        scheduler.load_state_dict(torch.load(os.path.join(args.model_name_or_path, "scheduler.pt")))
+    # # Check if saved optimizer or scheduler states exist
+    # if (
+    #         args.model_name_or_path
+    #         and os.path.isfile(os.path.join(args.model_name_or_path, "optimizer.pt"))
+    #         and os.path.isfile(os.path.join(args.model_name_or_path, "scheduler.pt"))
+    # ):
+    #     # Load in optimizer and scheduler states
+    #     optimizer.load_state_dict(torch.load(os.path.join(args.model_name_or_path, "optimizer.pt")))
+    #     scheduler.load_state_dict(torch.load(os.path.join(args.model_name_or_path, "scheduler.pt")))
 
     if args.fp16:
         try:
@@ -339,41 +339,41 @@ def train(args, train_dataset, model: PreTrainedModel, tokenizer: PreTrainedToke
                 else:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                 optimizer.step()
-                scheduler.step()  # Update learning rate schedule
+                # scheduler.step()  # Update learning rate schedule
                 model.zero_grad()
                 global_step += 1
 
-                if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
-                    # Log metrics
-                    if (
-                            args.local_rank == -1 and args.evaluate_during_training
-                    ):  # Only evaluate when single GPU otherwise metrics may not average well
-                        results = evaluate(args, model, tokenizer)
-                        for key, value in results.items():
-                            tb_writer.add_scalar("eval_{}".format(key), value, global_step)
-                    tb_writer.add_scalar("lr", scheduler.get_lr()[0], global_step)
-                    tb_writer.add_scalar("loss", (tr_loss - logging_loss) / args.logging_steps, global_step)
-                    logging_loss = tr_loss
+                # if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
+                #     # Log metrics
+                #     if (
+                #             args.local_rank == -1 and args.evaluate_during_training
+                #     ):  # Only evaluate when single GPU otherwise metrics may not average well
+                #         results = evaluate(args, model, tokenizer)
+                #         for key, value in results.items():
+                #             tb_writer.add_scalar("eval_{}".format(key), value, global_step)
+                #     tb_writer.add_scalar("lr", scheduler.get_lr()[0], global_step)
+                #     tb_writer.add_scalar("loss", (tr_loss - logging_loss) / args.logging_steps, global_step)
+                #     logging_loss = tr_loss
 
-                if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
-                    checkpoint_prefix = "checkpoint"
-                    # Save model checkpoint
-                    output_dir = os.path.join(args.output_dir, "{}-{}".format(checkpoint_prefix, global_step))
-                    os.makedirs(output_dir, exist_ok=True)
-                    model_to_save = (
-                        model.module if hasattr(model, "module") else model
-                    )  # Take care of distributed/parallel training
-                    model_to_save.save_pretrained(output_dir)
-                    tokenizer.save_pretrained(output_dir)
+                # if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
+                #     checkpoint_prefix = "checkpoint"
+                #     # Save model checkpoint
+                #     output_dir = os.path.join(args.output_dir, "{}-{}".format(checkpoint_prefix, global_step))
+                #     os.makedirs(output_dir, exist_ok=True)
+                #     model_to_save = (
+                #         model.module if hasattr(model, "module") else model
+                #     )  # Take care of distributed/parallel training
+                #     model_to_save.save_pretrained(output_dir)
+                #     tokenizer.save_pretrained(output_dir)
 
-                    torch.save(args, os.path.join(output_dir, "training_args.bin"))
-                    logger.info("Saving model checkpoint to %s", output_dir)
+                #     torch.save(args, os.path.join(output_dir, "training_args.bin"))
+                #     logger.info("Saving model checkpoint to %s", output_dir)
 
-                    _rotate_checkpoints(args, checkpoint_prefix)
+                #     _rotate_checkpoints(args, checkpoint_prefix)
 
-                    torch.save(optimizer.state_dict(), os.path.join(output_dir, "optimizer.pt"))
-                    torch.save(scheduler.state_dict(), os.path.join(output_dir, "scheduler.pt"))
-                    logger.info("Saving optimizer and scheduler states to %s", output_dir)
+                #     torch.save(optimizer.state_dict(), os.path.join(output_dir, "optimizer.pt"))
+                #     torch.save(scheduler.state_dict(), os.path.join(output_dir, "scheduler.pt"))
+                #     logger.info("Saving optimizer and scheduler states to %s", output_dir)
 
             if 0 < args.max_steps < global_step:
                 epoch_iterator.close()
